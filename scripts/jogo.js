@@ -66,6 +66,25 @@ const floor = {
     }
 }
 
+const messageGetReady = {
+    spriteX: 134,
+    spriteY: 0,
+    largura: 174,
+    altura: 152,
+    x: (canvas.width / 2) - 174 / 2,
+    y: 50,
+
+    draw() {
+        ctx.drawImage(
+            sprites,
+            messageGetReady.spriteX, messageGetReady.spriteY, // SpriteX e SpriteY
+            messageGetReady.largura, messageGetReady.altura, // Tamanho do recorte na Sprite
+            messageGetReady.x, messageGetReady.y, // Local de desenho no Canvas
+            messageGetReady.largura, messageGetReady.altura, // Tamanho do Sprite
+            );
+    }
+}
+
 // [Bird]
 const flappyBird = {
     spriteX: 0,
@@ -87,21 +106,73 @@ const flappyBird = {
             );
     },
 
-    refreshDrop() {
+    refresh() {
         flappyBird.velocidade += flappyBird.gravidade;
         flappyBird.y += flappyBird.velocidade;
     }
 
 }
 
+// 
+// [Telas]
+// 
+
+let screenOn = {};
+
+function screenChange(newScreen) {
+    screenOn = newScreen;
+}
+
+const Telas = {
+    INICIO: {
+        draw() {
+            background.draw();
+            messageGetReady.draw();
+            floor.draw();
+            flappyBird.draw();
+        },
+
+        refresh() {
+
+        },
+
+        click() {
+            screenChange(Telas.JOGO);
+        }
+        
+    },
+
+    JOGO: {
+        draw() {
+            background.draw();
+            floor.draw();
+            flappyBird.draw();
+
+        },
+
+        refresh() {
+            flappyBird.refresh();
+
+        }
+
+    }
+}
+
 function loopDraw() {
 
-    flappyBird.refreshDrop();
-
-    background.draw();
-    floor.draw();
-    flappyBird.draw();
+    screenOn.draw();
+    screenOn.refresh();
+    
     requestAnimationFrame(loopDraw);
 }
 
+window.addEventListener("click", () => {
+    if (screenOn.click) {
+        screenOn.click();
+    }
+    console.log("JOGO INICIADO!");
+    // screenChange(Telas.JOGO);
+});
+
+screenChange(Telas.INICIO);
 loopDraw();
