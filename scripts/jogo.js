@@ -6,6 +6,7 @@ const ctx = canvas.getContext("2d");
 const sprites = new Image();
 sprites.src = "./assets/img/sprites.png";
 
+// [Fundo]
 const background = {
     spriteX: 390,
     spriteY: 0,
@@ -14,7 +15,7 @@ const background = {
     x: 0,
     y: canvas.height - 204,
     
-    desenha() {
+    draw() {
 
         ctx.fillStyle = "#70c5ce";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -37,6 +38,7 @@ const background = {
     }
 }
 
+// [Chao]
 const floor = {
     spriteX: 0,
     spriteY: 610,
@@ -45,7 +47,7 @@ const floor = {
     x: 0,
     y: canvas.height - 112,
 
-    desenha() {
+    draw() {
         ctx.drawImage(
             sprites,
             floor.spriteX, floor.spriteY, // SpriteX e SpriteY
@@ -72,8 +74,10 @@ const flappyBird = {
     altura: 24,
     x: 10,
     y: 50,
+    velocidade: 0,
+    gravidade: 0.20,
 
-    desenha() {
+    draw() {
         ctx.drawImage(
             sprites,
             flappyBird.spriteX, flappyBird.spriteY, // SpriteX e SpriteY
@@ -81,14 +85,22 @@ const flappyBird = {
             flappyBird.x, flappyBird.y, // Local de desenho no Canvas
             flappyBird.largura, flappyBird.altura, // Tamanho do Sprite
             );
+    },
+
+    refreshDrop() {
+        flappyBird.velocidade += flappyBird.gravidade;
+        flappyBird.y += flappyBird.velocidade;
     }
 
 }
 
 function loopDraw() {
-    background.desenha();
-    floor.desenha();
-    flappyBird.desenha();
+
+    flappyBird.refreshDrop();
+
+    background.draw();
+    floor.draw();
+    flappyBird.draw();
     requestAnimationFrame(loopDraw);
 }
 
