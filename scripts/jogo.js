@@ -3,6 +3,9 @@ console.log("FLAPPY BIRD");
 const canvas = document.querySelector("canvas");
 const ctx = canvas.getContext("2d");
 
+const soundHit = new Audio();
+soundHit.src = "./assets/sound-effects/efeitos_hit.wav";
+
 const sprites = new Image();
 sprites.src = "./assets/img/sprites.png";
 
