@@ -86,15 +86,33 @@ const messageGetReady = {
 }
 
 // [Bird]
+
+function toCollide(flappyBird, floor) {
+    const flappyBirdDiameter = flappyBird.y + flappyBird.altura;
+    const floorY = floor.y;
+
+    if (flappyBirdDiameter >= floorY) {
+        return true;
+    }
+
+    return false;
+}
+
 const flappyBird = {
-    spriteX: 0,
-    spriteY: 0,
-    largura: 33,
-    altura: 24,
-    x: 10,
-    y: 50,
-    velocidade: 0,
-    gravidade: 0.20,
+    spriteX: 0, // SpriteX
+    spriteY: 0, // SpriteY
+    largura: 33, // Tamanho do Sprite
+    altura: 24, // Tamanho do Sprite
+    x: 10, // Local de desenho no Canvas
+    y: 50, // Local de desenho no Canvas
+    jumpValue: 4.6,
+    toJump() {
+        // Faz o Birdd subir
+        console.log('pulando');
+        flappyBird.speed = - flappyBird.jumpValue;
+    },
+    speed: 0,
+    gravity: 0.20,
 
     draw() {
         ctx.drawImage(
@@ -107,10 +125,17 @@ const flappyBird = {
     },
 
     refresh() {
-        flappyBird.velocidade += flappyBird.gravidade;
-        flappyBird.y += flappyBird.velocidade;
-    }
 
+        if (toCollide(flappyBird, floor)) {
+            console.log("colidiu");
+            screenChange(Telas.INICIO);
+
+            return;
+        }
+
+        flappyBird.speed += flappyBird.gravity;
+        flappyBird.y += flappyBird.speed;
+    },
 }
 
 // 
@@ -153,6 +178,10 @@ const Telas = {
         refresh() {
             flappyBird.refresh();
 
+        },
+
+        click() {
+            flappyBird.toJump();
         }
 
     }
@@ -170,9 +199,9 @@ window.addEventListener("click", () => {
     if (screenOn.click) {
         screenOn.click();
     }
-    console.log("JOGO INICIADO!");
     // screenChange(Telas.JOGO);
 });
 
 screenChange(Telas.INICIO);
+console.log("JOGO INICIADO!");
 loopDraw();
