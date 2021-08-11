@@ -10,6 +10,8 @@ soundHit.volume = 0.2;
 const sprites = new Image();
 sprites.src = "./assets/img/sprites.png";
 
+let frames = 0;
+
 // [Fundo]
 const background = {
     spriteX: 390,
@@ -127,6 +129,12 @@ function createFlappyBird() {
         x: 10, // Local de desenho no Canvas
         y: 50, // Local de desenho no Canvas
         jumpValue: 4.6,
+        moviment: [
+            { spriteX: 0, spriteY: 0 }, // asa para cima
+            { spriteX: 0, spriteY: 26 }, // asa no meio
+            { spriteX: 0, spriteY: 52 }, // asa para baixo
+            { spriteX: 0, spriteY: 26 }, // asa no meio
+        ],
         toJump() {
             // Faz o Birdd subir
             console.log('pulando');
@@ -134,11 +142,35 @@ function createFlappyBird() {
         },
         speed: 0,
         gravity: 0.20,
-    
+        currentFrame: 0,
+        refreshCurrentFrame() {
+
+            const framesInterval = 10;
+            const spentInterval = frames % framesInterval === 0;
+            // console.log(spentInterval);
+
+            if (spentInterval) {
+
+                const baseIncrement = 1;
+                const increment = baseIncrement + flappyBird.currentFrame;
+                const baseRepetition = flappyBird.moviment.length;
+                flappyBird.currentFrame = increment % baseRepetition;
+            }
+            
+            // console.log("[Incremento]", increment);
+            // console.log("[Base de repetição]", baseRepetition);
+            // console.log("[Frame]", increment + baseRepetition);
+
+        },
+
         draw() {
+
+            flappyBird.refreshCurrentFrame();
+            const { spriteX, spriteY, } = flappyBird.moviment[flappyBird.currentFrame];
+
             ctx.drawImage(
                 sprites,
-                flappyBird.spriteX, flappyBird.spriteY, // SpriteX e SpriteY
+                spriteX, spriteY, // SpriteX e SpriteY
                 flappyBird.largura, flappyBird.altura, // Tamanho do recorte na Sprite
                 flappyBird.x, flappyBird.y, // Local de desenho no Canvas
                 flappyBird.largura, flappyBird.altura, // Tamanho do Sprite
@@ -235,6 +267,8 @@ function loopDraw() {
 
     screenOn.draw();
     screenOn.refresh();
+
+    frames = frames + 1;
     
     requestAnimationFrame(loopDraw);
 }
