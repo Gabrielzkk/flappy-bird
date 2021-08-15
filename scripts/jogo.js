@@ -44,6 +44,111 @@ const background = {
     }
 }
 
+// [Canos]
+function createPipes() {
+    const pipes = {
+        
+        largura: 52, // Tamanho do Sprite
+        altura: 400, // Tamanho do Sprite 
+        floor: { 
+            spriteX: 0, // SpriteX
+            spriteY: 169, // SpriteY
+        },
+        heaven: { 
+            spriteX: 52,
+            spriteY: 169,
+        },
+        space: 80,
+
+        draw() {
+            pipes.pairs.forEach((pair) => {
+
+                const yRandom = pair.y;
+                const spaceAmongPipes = 160;
+
+                // [Cano do céu]
+                const heavenPipeX = pair.x;
+                const heavenPipeY = yRandom;
+                ctx.drawImage(
+                    sprites,
+                    pipes.heaven.spriteX, pipes.heaven.spriteY,
+                    pipes.largura, pipes.altura,
+                    heavenPipeX, heavenPipeY,
+                    pipes.largura, pipes.altura,
+                    );
+    
+                // [Cano do chão]
+                const floorPipeX = pair.x;
+                const floorPipeY = pipes.altura + spaceAmongPipes + yRandom;
+                ctx.drawImage(
+                    sprites,
+                    pipes.floor.spriteX, pipes.floor.spriteY,
+                    pipes.largura, pipes.altura,
+                    floorPipeX, floorPipeY,
+                    pipes.largura, pipes.altura,
+                    );
+
+                    pair.heavenPipe = {
+                        x: heavenPipeX,
+                        y: pipes.altura + heavenPipeY,
+                    }
+                    pair.floorPipe = {
+                        x: floorPipeX,
+                        y: floorPipeY,
+                    }
+            });
+        },
+
+        thereIsCollisionToFlappy(pair) {
+
+            const flappyHead = globals.flappyBird.y;
+            const flappyFoot = globals.flappyBird.y + globals.flappyBird.altura;
+
+            if ((globals.flappyBird.x + globals.flappyBird.largura) >= pair.x) {
+                if (flappyHead <= pair.heavenPipe.y) {
+                    return true;
+                }
+
+                if (flappyFoot >= pair.floorPipe.y) {
+                    return true;
+                }
+            }
+            return false;
+        },
+
+        pairs: [],
+        refresh() {
+
+            const spent100Frames = frames % 100 === 0;
+
+            if (spent100Frames) {
+                pipes.pairs.push({
+                    x: canvas.width,
+                    y: -150 * (Math.random() + 1),
+                });
+            }
+
+            pipes.pairs.forEach((pair) => {
+                pair.x = pair.x - 2;
+
+                if (pipes.thereIsCollisionToFlappy(pair)) {
+                    soundHit.play();
+                    screenChange(Telas.INICIO);
+                }
+
+                if (pair.x + pipes.largura <= 0) {
+                    pipes.pairs.shift();
+                }
+            });
+
+        },
+
+
+    };
+
+    return pipes;
+}
+
 // [Chao]
 function createFloor() {
 
@@ -128,7 +233,7 @@ function createFlappyBird() {
         altura: 24, // Tamanho do Sprite
         x: 10, // Local de desenho no Canvas
         y: 50, // Local de desenho no Canvas
-        jumpValue: 4.6,
+        jumpValue: 4.4,
         moviment: [
             { spriteX: 0, spriteY: 0 }, // asa para cima
             { spriteX: 0, spriteY: 26 }, // asa no meio
@@ -136,8 +241,7 @@ function createFlappyBird() {
             { spriteX: 0, spriteY: 26 }, // asa no meio
         ],
         toJump() {
-            // Faz o Birdd subir
-            console.log('pulando');
+            // Faz o Bird subir
             flappyBird.speed = - flappyBird.jumpValue;
         },
         speed: 0,
@@ -224,13 +328,14 @@ const Telas = {
         initializes() {
             globals.flappyBird = createFlappyBird();
             globals.floor = createFloor();
+            globals.pipes = createPipes();
         },
 
         draw() {
             background.draw();
-            globals.floor.draw();
             globals.flappyBird.draw();
             messageGetReady.draw();
+            globals.floor.draw();
         },
 
         refresh() {
@@ -246,14 +351,15 @@ const Telas = {
     JOGO: {
         draw() {
             background.draw();
-            globals.floor.draw();
             globals.flappyBird.draw();
-
+            globals.pipes.draw();
+            globals.floor.draw();
         },
 
         refresh() {
+            globals.pipes.refresh();
+            globals.floor.floorMoviments();
             globals.flappyBird.refresh();
-
         },
 
         click() {
